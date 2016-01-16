@@ -1,0 +1,9 @@
+---
+#MHelpModifer's default config
+#messages will be shown when doing /help:
+messages:
+  - "&l&aHello, {name}!"
+  - "do /list to see who are the players online!"
+  - "there are {playercount} players online!"
+  - "and have &afun!"
+...
