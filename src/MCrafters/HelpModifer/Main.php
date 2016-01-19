@@ -4,9 +4,7 @@ namespace MCrafters\HelpModifer;
 
 use pocketmine\plugin\PluginBase;
 use pocketmine\event\Listener;
-use pocketmine\command\SimpleCommandMap;
 use MCrafters\HelpModifer\command\ModifedHelpCommand;
-use pocketmine\Server;
 
 class Main extends PluginBase implements Listener {
 	
