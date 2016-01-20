@@ -36,6 +36,7 @@ class ModifedHelpCommand extends Command{
     public function replaceStrings($msg, CommandSender $sender){
         $msg = str_replace("&", "§", $msg);
         $msg = str_replace("{name}", $sender->getName(), $msg);
+        $msg = str_replace("{maxplayers}", count($this->plugin->getServer()->getMaxPlayers()), $msg);
         $msg = str_replace("{playercount}", count($this->plugin->getServer()->getOnlinePlayers()), $msg);
         return $msg;
     }
