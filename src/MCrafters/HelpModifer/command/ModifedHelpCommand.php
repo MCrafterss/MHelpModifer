@@ -76,8 +76,7 @@ class ModifedHelpCommand extends Command{
         }
         if(isset($args[0])){
             if(is_numeric($args[0])){
-                $pageNumber = (int) array_pop($args);
-                $this->sendHelp($sender, $height, $pageNumber);
+                $this->sendHelp($sender, $height, $args[0]);
                 return true;
             }
         }
