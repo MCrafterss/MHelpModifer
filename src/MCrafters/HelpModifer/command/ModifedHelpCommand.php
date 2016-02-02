@@ -21,8 +21,6 @@ class ModifedHelpCommand extends Command{
 
     /**
      * @param CommandSender $sender
-     * @param int $height
-     * @param int $page
      */
     public function sendHelp(CommandSender $sender){
         foreach($this->plugin->getConfig()->get("messages") as $msg){
