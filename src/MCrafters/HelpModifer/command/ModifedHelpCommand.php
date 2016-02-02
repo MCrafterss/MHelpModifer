@@ -40,10 +40,9 @@ class ModifedHelpCommand extends Command{
         $page = (int) min(count($msgs), $page);
 
         if($page < 1) $page = 1;
-        if(isset($msgs[$page - 1])){
-            foreach($msgs[$page - 1] as $msg){
-                $sender->sendMessage($msg);
-              }
+
+        foreach($msgs[$page - 1] as $msg){
+            $sender->sendMessage($msg);
          }
     }
     
