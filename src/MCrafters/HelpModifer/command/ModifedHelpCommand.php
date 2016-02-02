@@ -22,6 +22,8 @@ class ModifedHelpCommand extends Command{
 
     /**
      * @param CommandSender $sender
+     * @param int $height
+     * @param int $page
      */
     public function sendHelp(CommandSender $sender, $height, $page){
         if($page <= 0){
