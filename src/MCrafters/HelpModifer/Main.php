@@ -3,10 +3,9 @@
 namespace MCrafters\HelpModifer;
 
 use pocketmine\plugin\PluginBase;
-use pocketmine\event\Listener;
 use MCrafters\HelpModifer\command\ModifedHelpCommand;
 
-class Main extends PluginBase implements Listener {
+class Main extends PluginBase {
 	
 	public function onEnable(){
 		$this->saveDefaultConfig();
