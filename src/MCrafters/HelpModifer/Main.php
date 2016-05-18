@@ -19,7 +19,6 @@ class Main extends PluginBase {
 	public function onEnable(){
 		@mkdir($this->getDataFolder());
 		$this->saveDefaultConfig();
-		$this->getServer()->getPluginManager()->registerEvents($this, $this);
 		$this->getServer()->getLogger()->info("§l§cHelp§6Modifer §aEnabled§c!");
 		$this->getServer()->getCommandMap()->getCommand("help")->setLabel("help_disabled");
 		$this->getServer()->getCommandMap()->getCommand("help")->unregister($this->getServer()->getCommandMap());
