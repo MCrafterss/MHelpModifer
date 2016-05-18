@@ -1,175 +1,96 @@
 <?php
 
-namespace MCrafters\HelpModifer\command;
-
 /*
- * __  __  ____            __ _                
- *|  \/  |/ ___|_ __ __ _ / _| |_ ___ _ __ ___ 
- *| |\/| | |   | '__/ _` | |_| __/ _ \ '__/ __|
- *| |  | | |___| | | (_| |  _| ||  __/ |  \__ \
- *|_|  |_|\____|_|  \__,_|_|  \__\___|_|  |___/
- *
+ *  ____ 
+ * / ___|  ___ _ __ _ __  _   _ _   _ 
+ * \___ \ / _ \ '__| '_ \| | | | | | |
+ *  ___) |  __/ |  | | | | |_| | |_| |
+ * |____/ \___|_|  |_| |_|\__, |\__,_|
+ *                        |___/       
+ * 
 */
 
-use MCrafters\HelpModifer\Main;
+namespace MCrafters\HelpModifer\command;
+
 use pocketmine\command\Command;
 use pocketmine\command\CommandSender;
 use pocketmine\command\ConsoleCommandSender;
-use pocketmine\Player;
+use pocketmine\event\TranslationContainer;
+use MCrafters\HelpModifer\Main;
 
 class ModifedHelpCommand extends Command{
-    /** 
-     *@var Main 
-     */
 
-    private $plugin;
-    /**
-     * @param Main $plugin
-     */
-    public function __construct(Main $plugin){
-        parent::__construct("help", "Gives you help", null, ["?"]);
-        $this->plugin = $plugin;
-    }
+   private $plugin;
 
-    /**
-     * @param CommandSender $sender
-     */
-    public function sendPageOne(CommandSender $sender){
-        foreach($this->plugin->getConfig()->get("page1") as $msg){
-            $sender->sendMessage($this->replaceStrings($msg, $sender));
-        }
-    }
-    
-     /**
-     * @param CommandSender $sender
-     */
-    public function sendConsolePageOne(CommandSender $sender){
-        foreach($this->plugin->getConfig()->get("page1") as $msg){
-            $sender->sendMessage($this->replaceConsoleStrings($msg, $sender));
-        }
-    }
-    
-     /**
-     * @param CommandSender $sender
-     */
-    public function sendPageTwo(CommandSender $sender){
-        foreach($this->plugin->getConfig()->get("page2") as $msg){
-            $sender->sendMessage($this->replaceStrings($msg, $sender));
-        }
-    }
-    
-     /**
-     * @param CommandSender $sender
-     */
-    public function sendConsolePageTwo(CommandSender $sender){
-        foreach($this->plugin->getConfig()->get("page2") as $msg){
-            $sender->sendMessage($this->replaceConsoleStrings($msg, $sender));
-        }
-    }
-    
-     /**
-     * @param CommandSender $sender
-     */
-    public function sendPageThree(CommandSender $sender){
-        foreach($this->plugin->getConfig()->get("page3") as $msg){
-            $sender->sendMessage($this->replaceStrings($msg, $sender));
-        }
-    }
-    
-     /**
-     * @param CommandSender $sender
-     */
-    public function sendConsolePageThree(CommandSender $sender){
-        foreach($this->plugin->getConfig()->get("page3") as $msg){
-            $sender->sendMessage($this->replaceConsoleStrings($msg, $sender));
-        }
-    }
-    
-     /**
-     * @param CommandSender $sender
-     */
-    public function sendPageFour(CommandSender $sender){
-        foreach($this->plugin->getConfig()->get("page4") as $msg){
-            $sender->sendMessage($this->replaceStrings($msg, $sender));
-        }
-    }
-    
-     /**
-     * @param CommandSender $sender
-     */
-    public function sendConsolePageFour(CommandSender $sender){
-        foreach($this->plugin->getConfig()->get("page4") as $msg){
-            $sender->sendMessage($this->replaceConsoleStrings($msg, $sender));
-        }
-    }
-    
-    /**
-     * @param string $msg
-     * @param CommandSender $sender
-     * @return string
-     */
-    public function replaceStrings($msg, CommandSender $sender){
-        $msg = str_replace("&", "§", $msg);
-        $msg = str_replace("{name}", $sender->getName(), $msg);
-        $msg = str_replace("{maxplayers}", count($this->plugin->getServer()->getMaxPlayers()), $msg);
-        $msg = str_replace("{playercount}", count($this->plugin->getServer()->getOnlinePlayers()), $msg);
-        $msg = str_replace("{playerlevel}", $sender->getLevel()->getName(), $msg);
-        $msg = str_replace("{playerlevelcount}", count($sender->getLevel()->getPlayers()), $msg);
-        return $msg;
-    }
-    
-     /**
-     * @param string $msg
-     * @param CommandSender $sender
-     * @return string
-     */
-    public function replaceConsoleStrings($msg, CommandSender $sender){
-        $msg = str_replace("&", "§", $msg);
-        $msg = str_replace("{name}", "CONSOLE", $msg);
-        $msg = str_replace("{maxplayers}", count($this->plugin->getServer()->getMaxPlayers()), $msg);
-        $msg = str_replace("{playercount}", count($this->plugin->getServer()->getOnlinePlayers()), $msg);
-        $msg = str_replace("{playerlevel}", $this->plugin->getServer()->getDefaultLevel()->getName(), $msg);
-        $msg = str_replace("{playerlevelcount}", count($this->plugin->getServer()->getDefaultLevel()->getPlayers()), $msg);
-        return $msg;
+	public function __construct(Main $plugin){
+		parent::__construct("help", "Gives you help", null, ["?"]);
+		$this->plugin = $plugin;
+		$this->setPermission("mhelpmodifer.command.help");
+	}
+
+	public function execute(CommandSender $sender, $currentAlias, array $args){
+		if(!$this->testPermission($sender)){
+			return \true;
+		}
+		$messages = $this->plugin->getConfig()->get("messages");
+
+		if(\count($args) === 0){
+			$command = "";
+			$pageNumber = 1;
+		}elseif(\is_numeric($args[\count($args) - 1])){
+			$pageNumber = (int) \array_pop($args);
+			if($pageNumber <= 0){
+				$pageNumber = 1;
+			}
+			$command = \implode(" ", $args);
+		}else{
+			$command = \implode(" ", $args);
+			$pageNumber = 1;
+		}
+
+		if($sender instanceof ConsoleCommandSender){
+			$pageHeight = \PHP_INT_MAX;
+		}else{
+			$pageHeight = 5;
+		}
+
+		if($command === ""){
+			/** @var Command[][] $commands */
+			/**foreach($messages){
+					$messages = $message;
+			  }*/
+			//\ksort($commands, SORT_NATURAL | SORT_FLAG_CASE);
+			$messages = \array_chunk($messages, $pageHeight);
+			$pageNumber = (int) \min(\count($messages), $pageNumber);
+			if($pageNumber < 1){
+				$pageNumber = 1;
+			}
+			$sender->sendMessage(new TranslationContainer("commands.help.header", [$pageNumber, \count($messages)]));
+			if(isset($messages[$pageNumber - 1])){
+				foreach($messages[$pageNumber - 1] as $message){
+					$sender->sendMessage($this->replaceStrings($message, $sender));
+				}
+			}
+
+			return \true;
+			
+		}
+	}
+	
+	public function replaceStrings($message, CommandSender $sender){
+        $message = str_replace("&", "§", $message);
+        $message = str_replace("{maxplayers}", count($this->plugin->getServer()->getMaxPlayers()), $message);
+        $message = str_replace("{playercount}", count($this->plugin->getServer()->getOnlinePlayers()), $message);
+        if($sender instanceof ConsoleCommandSender){
+        $message = str_replace("{name}", "CONSOLE", $message);
+        $message = str_replace("{playerlevel}", $sender->getServer()->getDefaultLevel()->getName(), $message);
+        $message = str_replace("{playerlevelcount}", count($sender->getServer()->getDefaultLevel()->getPlayers()), $message);
+          }else{
+          $message = str_replace("{name}", $sender->getName(), $message);
+          $message = str_replace("{playerlevel}", $sender->getLevel()->getName(), $message);
+          $message = str_replace("{playerlevelcount}", count($sender->getLevel()->getPlayers()), $message);
+         }
+        return $message;
     }
 
-    /**
-     * @param CommandSender $sender
-     * @param string $label
-     * @param string[] $args
-     * @return bool
-     */
-    
-    public function execute(CommandSender $sender, $label, array $args){
-    
-      if($sender instanceof ConsoleCommandSender){
-        if(count($args) === 0 or trim(implode(" ", $args)) === "1"){
-          $this->sendConsolePageOne($sender);
-          return true;
-          }elseif(trim(implode(" ", $args)) === "2"){
-            $this->sendConsolePageTwo($sender);
-            return true;
-            }elseif(trim(implode(" ", $args)) === "3"){
-              $this->sendConsolePageThree($sender);
-              return true;
-              }elseif(trim(implode(" ", $args)) === "4"){
-                $this->sendConsolePageFour($sender);
-                return true;
-                }
-      }elseif($sender instanceof Player){
-        if(count($args) === 0 or trim(implode(" ", $args)) === "1"){
-          $this->sendPageOne($sender);
-          return true;
-          }elseif(trim(implode(" ", $args)) === "2"){
-            $this->sendPageTwo($sender);
-            return true;
-            }elseif(trim(implode(" ", $args)) === "3"){
-              $this->sendPageThree($sender);
-              return true;
-              }elseif(trim(implode(" ", $args)) === "4"){
-                $this->sendPageFour($sender);
-                return true;
-                }
-          }    
-    }
 }
