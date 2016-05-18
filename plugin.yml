@@ -1,8 +1,11 @@
 name: MHelpModifer
-version: 3.0
-api:
- - 1.0.0
- - 2.0.0
+version: 3.1
+api: [1.0.0, 2.0.0]
 main: MCrafters\HelpModifer\Main
 author: MCrafters
 load: POSTWORLD
+
+permissions:
+ mhelpmodifer.command.help:
+  description: "Allows using /help command"
+  default: true
