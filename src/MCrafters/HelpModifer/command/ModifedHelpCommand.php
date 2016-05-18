@@ -22,7 +22,7 @@ class ModifedHelpCommand extends Command implements \pocketmine\command\PluginId
 		
 		$commands = $this->plugin->getConfig()->get('content');
 		if(!$commands){
-			$this->getLogger()->warning("Failed to load help messages.");
+			$plugin->getLogger()->warning("Failed to load help messages.");
 			return;
 		}
 		
@@ -66,9 +66,9 @@ class ModifedHelpCommand extends Command implements \pocketmine\command\PluginId
 		} elseif (isset($this->book[$page])) {
 			$pg = $this->book[$page];
 		}
-		$sender->sendMessage(new TranslationContainer("commands.help.header", [$pageNum, \count($this->book[$pageNum])]));
+		$issuer->sendMessage(new TranslationContainer("commands.help.header", [$page < 0 ? 1 : $page, $page < 0 ? 1 : \count($pg)]));
 		foreach($pg as $line){
-			$sender->sendMessage($this->parseVars($line));
+			$issuer->sendMessage($this->parseVars($line, $issuer));
 		}
 		return true;
 	}
@@ -79,6 +79,10 @@ class ModifedHelpCommand extends Command implements \pocketmine\command\PluginId
 	        $with = ["§", $this->plugin->getServer()->getMaxPlayers(), count($this->plugin->getServer()->getOnlinePlayers()), $sender instanceof Player ? $sender->getName() : "CONSOLE", $level->getName(), count($level->getPlayers())];
 	        $message = str_replace($replace, $with, $message);
 	        return $message;
-    	}
+    }
+
+    public function getPlugin(){
+    	return $this->plugin;
+    }
 
 }
