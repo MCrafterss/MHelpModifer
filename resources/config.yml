@@ -1,39 +1,15 @@
 ---
-#  __  __ _   _      _       __  __           _ _  __           
-# |  \/  | | | | ___| |_ __ |  \/  | ___   __| (_)/ _| ___ _ __ 
-# | |\/| | |_| |/ _ \ | '_ \| |\/| |/ _ \ / _` | | |_ / _ \ '__|
-# | |  | |  _  |  __/ | |_) | |  | | (_) | (_| | |  _|  __/ |   
-# |_|  |_|_| |_|\___|_| .__/|_|  |_|\___/ \__,_|_|_|  \___|_|   
-#                     |_|                                       
-#
-# Messages will be shown when doing /help or /help 1:
-page1:
- - "Help page 1 of 4 (&7/help <page>&f)"
- - "&l&aHello, {name}!"
- - "Do /list to see who are the players online!"
- - "There are {playercount} players online!"
- - "You are currently in &5{playerlevel}&f!"
+# MHelpModifer's default config
 
-# Messages will be shown when doing /help 2:
-page2:
- - "Help page 2 of 4 (&7/help <page>&f)"
- - "There are currently &3{playerlevelcount}&f players in"
- - "&7{playerlevel}&f!"
- - "And do you also like this custom /help command?"
- - "Awesome :D"  
- 
-# Messages will be shown when doing /help 3:
-page3:
- - "Help page 3 of 4 (&7/help <page>&f)"
- - "You should also try our Minigames, like"
- - "&6M&5Team&4PvP"
- - "&6M&9Spleef"
- 
-# Messages will be shown when doing /help 4:
-page4:
- - "Help page 4 of 4 (&7/help <page>&f)"
- - "Hope you all enjoy the new"
- - "MHelpModifer v3.0 update :D"
- - "Check out now the Mcrafters Forums:"
- - "forums.mcrafters.ml"   
+# Messages will be shown when doing /help:
+messages:
+  - "&l&aHello, {name}!"
+  - "Do /list to see who are the players online!"
+  - "There are {playercount} players online!"
+  - "You are currently in Level &3{playerlevel}"
+  - "In &7{playerlevel}&f are &9{playerlevelcount} &fplayers!"
+  - "Did you know that you can add now unlimited pages?"
+  - "No? Then try now!"
+  - "Just change the config"
+  - "&eHave &afun &eon our Server&6!"
 ...
