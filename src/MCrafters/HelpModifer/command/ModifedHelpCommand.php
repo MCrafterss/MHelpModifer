@@ -4,78 +4,85 @@ namespace MCrafters\HelpModifer\command;
 
 use pocketmine\command\Command;
 use pocketmine\command\CommandSender;
-use pocketmine\command\ConsoleCommandSender;
+use pocketmine\Player;
 use pocketmine\event\TranslationContainer;
 use MCrafters\HelpModifer\Main;
 
-class ModifedHelpCommand extends Command{
+class ModifedHelpCommand extends Command implements \pocketmine\command\PluginIdentifiableCommand {
 
-   private $plugin;
+	/** @var Main $plugin */
+   	private $plugin;
+   	/** @var String[] $book */
+   	protected $book = [];
 
 	public function __construct(Main $plugin){
 		parent::__construct("help", "Gives you help", null, ["?"]);
 		$this->plugin = $plugin;
 		$this->setPermission("mhelpmodifer.command.help");
+		
+		$commands = $this->plugin->getConfig()->get('content');
+		if(!$commands){
+			$plugin->getLogger()->warning("Failed to load help messages.");
+			return;
+		}
+		
+		$iperPage = 5;
+		$page = 1;
+		$cmds = [];
+		$i = 1;
+		foreach($commands as $k => $cmd){
+			$cmds[$page][] = $cmd;
+			if($i >= $iperPage){
+				$i = 1;
+				$page++;
+			}
+			$i++;
+		}
+		$this->book = $cmds;
 	}
 
 	public function execute(CommandSender $sender, $currentAlias, array $args){
-		if(!$this->testPermission($sender)){
-			return \true;
-		}
-		$messages = $this->plugin->getConfig()->get("messages");
-
-		if(\count($args) === 0){
-			$command = "";
-			$pageNumber = 1;
-		}elseif(\is_numeric($args[\count($args) - 1])){
-			$pageNumber = (int) \array_pop($args);
-			if($pageNumber <= 0){
-				$pageNumber = 1;
-			}
-			$command = \implode(" ", $args);
-		}else{
-			$command = \implode(" ", $args);
-			$pageNumber = 1;
+		if(!$this->testPermission($sender)){	return true;	}
+		
+		$pgNum = 1;
+		if(isset($args[0])){
+			$pgNum = is_numeric($args[0]) ? intval($args[0]) : 1;
+			if($pgNum <= 0) $pgNum = 1;
+			if($pgNum > ($r = count($this->book))) $pgNum = $r;
 		}
 
-		if($sender instanceof ConsoleCommandSender){
-			$pageHeight = \PHP_INT_MAX;
-		}else{
-			$pageHeight = 5;
-		}
-
-		if($command === ""){
-			$messages = \array_chunk($messages, $pageHeight);
-			$pageNumber = (int) \min(\count($messages), $pageNumber);
-			if($pageNumber < 1){
-				$pageNumber = 1;
-			}
-			$sender->sendMessage(new TranslationContainer("commands.help.header", [$pageNumber, \count($messages)]));
-			if(isset($messages[$pageNumber - 1])){
-				foreach($messages[$pageNumber - 1] as $message){
-					$sender->sendMessage($this->replaceStrings($message, $sender));
-				}
-			}
-
-			return \true;
-			
-		}
+			$this->sendHelpPage($sender, $sender instanceof Player ? $pageNum : -1);
+		return true;
 	}
 	
-	public function replaceStrings($message, CommandSender $sender){
-        $message = str_replace("&", "§", $message);
-        $message = str_replace("{maxplayers}", count($this->plugin->getServer()->getMaxPlayers()), $message);
-        $message = str_replace("{playercount}", count($this->plugin->getServer()->getOnlinePlayers()), $message);
-        if($sender instanceof ConsoleCommandSender){
-        $message = str_replace("{name}", "CONSOLE", $message);
-        $message = str_replace("{playerlevel}", $sender->getServer()->getDefaultLevel()->getName(), $message);
-        $message = str_replace("{playerlevelcount}", count($sender->getServer()->getDefaultLevel()->getPlayers()), $message);
-          }else{
-          $message = str_replace("{name}", $sender->getName(), $message);
-          $message = str_replace("{playerlevel}", $sender->getLevel()->getName(), $message);
-          $message = str_replace("{playerlevelcount}", count($sender->getLevel()->getPlayers()), $message);
-         }
-        return $message;
+	public function sendHelpPage(CommandSender $issuer, $page = 1) : bool {
+		$pg = [];
+		if($page < 0){
+			for($i=1;$i<=count($this->book);$i++){
+				foreach($this->book[$i] as $line){
+					$pg[] = $line;
+				}
+			}
+		} elseif (isset($this->book[$page])) {
+			$pg = $this->book[$page];
+		}
+		$issuer->sendMessage(new TranslationContainer("commands.help.header", [$page < 0 ? 1 : $page, $page < 0 ? 1 : \count($pg)]));
+		foreach($pg as $line){
+			$issuer->sendMessage($this->parseVars($line, $issuer));
+		}
+		return true;
+	}
+	
+	public function parseVars($message, CommandSender $sender) : string {
+	        $level = $sender instanceof Player ? $sender->getLevel() : $this->plugin->getServer()->getDefaultLevel();
+	        $replace = ["&", "{maxplayers}", "{playercount}", "{name}", "{playerlevel}", "{playerlevelcount}"];
+	        $with = ["§", $this->plugin->getServer()->getMaxPlayers(), count($this->plugin->getServer()->getOnlinePlayers()), $sender instanceof Player ? $sender->getName() : "CONSOLE", $level->getName(), count($level->getPlayers())];
+	        $message = str_replace($replace, $with, $message);
+	        return $message;
+    }
+
+    public function getPlugin(){
+    	return $this->plugin;
     }
 
 }
