@@ -8,8 +8,8 @@ messages:
   - "There are {playercount} players online!"
   - "You are currently in Level &3{playerlevel}"
   - "In &7{playerlevel}&f are &9{playerlevelcount} &fplayers!"
-  - "Did you know that you can add now unlimited pages?"
-  - "No? Then try now!"
-  - "Just change the config"
+  - "Did you know that you can now add unlimited pages?"
+  - "No? Well, then give it a shot now!"
+  - "It's as simple as changing the config!"
   - "&eHave &afun &eon our Server&6!"
 ...
